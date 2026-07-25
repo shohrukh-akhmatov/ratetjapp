@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get MoneyTJ</title>
+<style>
+  :root {
+    color-scheme: light dark;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    background: #f2f2f7;
+    color: #1c1c1e;
+    text-align: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #000; color: #f2f2f7; }
+    .card { background: #1c1c1e; }
+    a.button { background: #0a84ff; }
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 360px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p { font-size: 14px; opacity: 0.7; margin: 0 0 24px; }
+  a.button {
+    display: block;
+    background: #007aff;
+    color: #fff;
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  a.button.secondary {
+    background: transparent;
+    border: 1px solid currentColor;
+    color: inherit;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid rgba(127,127,127,0.25);
+    border-top-color: #007aff;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Finding the right download for your device&hellip;</p>
+  </div>
+
+  <div id="manual" class="hidden">
+    <h1>Get MoneyTJ</h1>
+    <p>Choose your platform below.</p>
+    <a id="ios-link" class="button hidden" href="#">Download for iPhone</a>
+    <a id="android-link" class="button hidden" href="#">Download for Android</a>
+    <a id="fallback-link" class="button secondary hidden" href="#">Visit MoneyTJ</a>
+  </div>
+</div>
+
+<script>
+// ---- Fill these in from your Supabase project settings (Project Settings > API). ----
+// The anon/public key is safe to embed here -- it is already shipped inside
+// the iOS app itself, and Row Level Security only grants it SELECT access.
+const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+// ---------------------------------------------------------------------------
+
+const FALLBACK_URL = "https://YOUR_WEBSITE_OR_APP_STORE_URL"; // shown if nothing else is set yet
+
+function detectPlatform() {
+  const ua = navigator.userAgent || "";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  return "other";
+}
+
+async function fetchLinks() {
+  const endpoint =
+    SUPABASE_URL +
+    "/rest/v1/app_configuration" +
+    "?key=in.(app_store_url,google_play_url)" +
+    "&select=key,value";
+
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: "Bearer " + SUPABASE_ANON_KEY
+    }
+  });
+
+  if (response.ok === false) {
+    throw new Error("Supabase request failed: " + response.status);
+  }
+
+  const rows = await response.json();
+  const links = {};
+  for (const row of rows) {
+    if (typeof row.value === "string" && row.value.length > 0) {
+      links[row.key] = row.value;
+    }
+  }
+  return links;
+}
+
+function showManual(links) {
+  document.getElementById("loading").classList.add("hidden");
+  const manual = document.getElementById("manual");
+  manual.classList.remove("hidden");
+
+  const iosLink = document.getElementById("ios-link");
+  const androidLink = document.getElementById("android-link");
+  const fallbackLink = document.getElementById("fallback-link");
+
+  if (links.app_store_url) {
+    iosLink.href = links.app_store_url;
+    iosLink.classList.remove("hidden");
+  }
+  if (links.google_play_url) {
+    androidLink.href = links.google_play_url;
+    androidLink.classList.remove("hidden");
+  }
+  if (!links.app_store_url && !links.google_play_url) {
+    fallbackLink.href = FALLBACK_URL;
+    fallbackLink.textContent = "Visit MoneyTJ";
+    fallbackLink.classList.remove("hidden");
+  }
+}
+
+(async function main() {
+  let links = {};
+  try {
+    links = await fetchLinks();
+  } catch (error) {
+    // Supabase unreachable or misconfigured -- fall through to the manual
+    // picker instead of leaving the visitor stuck on a spinner.
+  }
+
+  const platform = detectPlatform();
+
+  if (platform === "ios" && links.app_store_url) {
+    window.location.replace(links.app_store_url);
+    return;
+  }
+  if (platform === "android" && links.google_play_url) {
+    window.location.replace(links.google_play_url);
+    return;
+  }
+
+  // Desktop visitor, or the right store link isn't published yet -- don't
+  // guess, show both options (or the fallback) instead.
+  showManual(links);
+})();
+</script>
+
+</body>
+</html>
