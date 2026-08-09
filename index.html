@@ -25,13 +25,18 @@
     body { background: #000; color: #f2f2f7; }
     .card { background: #1c1c1e; }
     a.button { background: #0a84ff; }
+    .footer { border-top-color: #38383a; }
+    .footer a { color: #0a84ff; }
   }
   .card {
     background: #fff;
     border-radius: 16px;
     padding: 32px 28px;
     max-width: 360px;
+    width: 100%;
+    margin: auto;
     box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    box-sizing: border-box;
   }
   h1 { font-size: 20px; margin: 0 0 8px; }
   p { font-size: 14px; opacity: 0.7; margin: 0 0 24px; }
@@ -50,6 +55,18 @@
     border: 1px solid currentColor;
     color: inherit;
   }
+  .footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e5ea;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .footer .row { opacity: 0.7; }
+  .footer .row .label { opacity: 0.8; }
+  .footer a { color: #007aff; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+  .footer .support { margin-top: 10px; opacity: 0.7; }
   .hidden { display: none; }
 </style>
 </head>
@@ -59,7 +76,24 @@
   <h1>Get Somoni</h1>
   <p id="message">Choose your platform below.</p>
   <a id="ios-link" class="button hidden" href="#">Download for iPhone</a>
-  <a id="android-link" class="button hidden" href="#">Download for Android</a>
+  <a id="android-link" class="button hidden" href="#">Download on Google Play</a>
+  <a id="rustore-link" class="button secondary hidden" href="#">Download on RuStore</a>
+
+  <div class="footer">
+    <div class="row">
+      <span class="label">Privacy Policy:</span>
+      <a href="en/privacy-en.html">EN</a> ·
+      <a href="ru/privacy-ru.html">RU</a>
+    </div>
+    <div class="row">
+      <span class="label">Terms of Use:</span>
+      <a href="en/terms-en.html">EN</a> ·
+      <a href="ru/terms-ru.html">RU</a>
+    </div>
+    <div class="support">
+      Support: <a href="mailto:shohlabs.dev@gmail.com">shohlabs.dev@gmail.com</a>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -67,6 +101,7 @@
 // published yet -- its button just won't be shown. ----
 const APP_STORE_URL = "";     // e.g. "https://apps.apple.com/app/moneytj/id0000000000"
 const GOOGLE_PLAY_URL = "";   // e.g. "https://play.google.com/store/apps/details?id=..."
+const RUSTORE_URL = "";       // e.g. "https://www.rustore.ru/catalog/app/..."
 // ---------------------------------------------------------------------------
 
 function detectPlatform() {
@@ -78,13 +113,16 @@ function detectPlatform() {
 
 (function main() {
   const platform = detectPlatform();
+  const androidStores = [GOOGLE_PLAY_URL, RUSTORE_URL].filter(Boolean);
 
   if (platform === "ios" && APP_STORE_URL) {
     window.location.replace(APP_STORE_URL);
     return;
   }
-  if (platform === "android" && GOOGLE_PLAY_URL) {
-    window.location.replace(GOOGLE_PLAY_URL);
+  // Only send Android visitors straight through when there is a single store
+  // to send them to -- with both published, let them pick.
+  if (platform === "android" && androidStores.length === 1) {
+    window.location.replace(androidStores[0]);
     return;
   }
 
@@ -92,6 +130,7 @@ function detectPlatform() {
   // don't guess, show whichever button(s) are actually available.
   const iosLink = document.getElementById("ios-link");
   const androidLink = document.getElementById("android-link");
+  const rustoreLink = document.getElementById("rustore-link");
   const message = document.getElementById("message");
 
   if (APP_STORE_URL) {
@@ -102,7 +141,11 @@ function detectPlatform() {
     androidLink.href = GOOGLE_PLAY_URL;
     androidLink.classList.remove("hidden");
   }
-  if (!APP_STORE_URL && !GOOGLE_PLAY_URL) {
+  if (RUSTORE_URL) {
+    rustoreLink.href = RUSTORE_URL;
+    rustoreLink.classList.remove("hidden");
+  }
+  if (!APP_STORE_URL && !GOOGLE_PLAY_URL && !RUSTORE_URL) {
     message.textContent = "Somoni is coming soon.";
   }
 })();
