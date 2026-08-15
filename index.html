@@ -27,6 +27,8 @@
     a.button { background: #0a84ff; }
     .footer { border-top-color: #38383a; }
     .footer a { color: #0a84ff; }
+    .lang a { color: #0a84ff; }
+    .lang a[aria-current="true"] { color: inherit; }
   }
   .card {
     background: #fff;
@@ -38,8 +40,38 @@
     box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     box-sizing: border-box;
   }
+  .lang {
+    font-size: 13px;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+  .lang a {
+    color: #007aff;
+    text-decoration: none;
+    padding: 2px 4px;
+  }
+  .lang a:hover { text-decoration: underline; }
+  .lang a[aria-current="true"] {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: default;
+  }
   h1 { font-size: 20px; margin: 0 0 8px; }
   p { font-size: 14px; opacity: 0.7; margin: 0 0 24px; }
+  /* Official store badges. Apple and Google both require their artwork be
+     used unmodified, so these are sized only by height and never recoloured,
+     stretched or overlaid. */
+  a.badge {
+    display: block;
+    margin: 0 auto 12px;
+    line-height: 0;
+  }
+  a.badge img { display: block; margin: 0 auto; width: auto; }
+  a.badge.appstore img { height: 48px; }
+  /* Google ships its badge with generous transparent padding baked in, so it
+     needs more height to read as the same visual size as Apple's. */
+  a.badge.googleplay img { height: 70px; margin-top: -11px; margin-bottom: -11px; }
   a.button {
     display: block;
     background: #007aff;
@@ -73,25 +105,31 @@
 <body>
 
 <div class="card">
-  <h1>Get Somoni</h1>
+  <div class="lang">
+    <a id="lang-en" href="?lang=en" hreflang="en">English</a> ·
+    <a id="lang-ru" href="?lang=ru" hreflang="ru">Русский</a>
+  </div>
+
+  <h1 id="heading">Get Somoni</h1>
   <p id="message">Choose your platform below.</p>
-  <a id="ios-link" class="button hidden" href="#">Download for iPhone</a>
-  <a id="android-link" class="button hidden" href="#">Download on Google Play</a>
+  <a id="ios-link" class="badge appstore hidden" href="#"><img id="ios-badge" alt="Download on the App Store"></a>
+  <a id="android-link" class="badge googleplay hidden" href="#"><img id="android-badge" alt="Get it on Google Play"></a>
   <a id="rustore-link" class="button secondary hidden" href="#">Download on RuStore</a>
 
   <div class="footer">
     <div class="row">
-      <span class="label">Privacy Policy:</span>
+      <span class="label" id="privacy-label">Privacy Policy:</span>
       <a href="en/privacy-en.html">EN</a> ·
       <a href="ru/privacy-ru.html">RU</a>
     </div>
     <div class="row">
-      <span class="label">Terms of Use:</span>
+      <span class="label" id="terms-label">Terms of Use:</span>
       <a href="en/terms-en.html">EN</a> ·
       <a href="ru/terms-ru.html">RU</a>
     </div>
     <div class="support">
-      Support: <a href="mailto:shohlabs.dev@gmail.com">shohlabs.dev@gmail.com</a>
+      <span id="support-label">Support:</span>
+      <a href="mailto:shohlabs.dev@gmail.com">shohlabs.dev@gmail.com</a>
     </div>
   </div>
 </div>
@@ -104,11 +142,153 @@ const GOOGLE_PLAY_URL = "";   // e.g. "https://play.google.com/store/apps/detail
 const RUSTORE_URL = "";       // e.g. "https://www.rustore.ru/catalog/app/..."
 // ---------------------------------------------------------------------------
 
+// Official badge artwork, served by Apple and Google themselves so it stays
+// current and stays unmodified -- both vendors permit linking to your own app
+// this way but forbid redrawing or altering the badge. Each has a Russian
+// rendering, which is the whole reason they are locale-keyed here.
+const BADGES = {
+  appstore: {
+    en: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/en-us?size=250x83",
+    ru: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/ru-ru?size=250x83"
+  },
+  googleplay: {
+    en: "https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png",
+    ru: "https://play.google.com/intl/ru_ru/badges/static/images/badges/ru_badge_web_generic.png"
+  }
+};
+
+// Apple publishes a white badge for dark surfaces; the black one disappears
+// against this page's dark theme.
+function appStoreBadge(lang) {
+  const dark = window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return BADGES.appstore[lang].replace("BADGE_STYLE", dark ? "white" : "black");
+}
+
+const TEXT = {
+  en: {
+    title: "Get Somoni transfer RUB-TJS",
+    heading: "Get Somoni",
+    choose: "Choose your platform below.",
+    soon: "Somoni is coming soon.",
+    ios: "Download for iPhone",
+    android: "Download on Google Play",
+    rustore: "Download on RuStore",
+    privacy: "Privacy Policy:",
+    terms: "Terms of Use:",
+    support: "Support:"
+  },
+  ru: {
+    title: "Сомони — переводы RUB-TJS",
+    heading: "Скачать Сомони",
+    choose: "Выберите свою платформу.",
+    soon: "Сомони скоро выйдет.",
+    ios: "Скачать для iPhone",
+    android: "Скачать в Google Play",
+    rustore: "Скачать в RuStore",
+    privacy: "Политика конфиденциальности:",
+    terms: "Условия использования:",
+    support: "Поддержка:"
+  }
+};
+
+// An explicit ?lang= wins, then a previous choice, then the browser. Anything
+// unrecognised falls back to English rather than guessing.
+function resolveLanguage() {
+  const requested = new URLSearchParams(window.location.search).get("lang");
+  if (requested && TEXT[requested]) {
+    try { localStorage.setItem("somoni-lang", requested); } catch (e) {}
+    return requested;
+  }
+  let stored = null;
+  try { stored = localStorage.getItem("somoni-lang"); } catch (e) {}
+  if (stored && TEXT[stored]) return stored;
+
+  const browser = (navigator.languages && navigator.languages[0]) ||
+    navigator.language || "en";
+  return /^ru\b/i.test(browser) ? "ru" : "en";
+}
+
+// Points a badge anchor at the vendor artwork for this language. If the image
+// cannot load -- vendor CDN unreachable, or a visitor on a network that blocks
+// it -- the anchor degrades to a plain labelled button rather than an empty
+// link, so the download is never unreachable.
+function setBadge(anchorID, imageID, source, label) {
+  const anchor = document.getElementById(anchorID);
+  const image = document.getElementById(imageID);
+  if (!image) {
+    anchor.textContent = label;
+    return;
+  }
+  image.alt = label;
+  image.onerror = function () {
+    anchor.classList.remove("badge", "appstore", "googleplay");
+    anchor.classList.add("button");
+    anchor.textContent = label;
+  };
+  image.src = source;
+}
+
+function applyLanguage(lang) {
+  const t = TEXT[lang];
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  document.getElementById("heading").textContent = t.heading;
+  setBadge("ios-link", "ios-badge", appStoreBadge(lang), t.ios);
+  setBadge("android-link", "android-badge", BADGES.googleplay[lang], t.android);
+  document.getElementById("rustore-link").textContent = t.rustore;
+  document.getElementById("privacy-label").textContent = t.privacy;
+  document.getElementById("terms-label").textContent = t.terms;
+  document.getElementById("support-label").textContent = t.support;
+
+  const enLink = document.getElementById("lang-en");
+  const ruLink = document.getElementById("lang-ru");
+  enLink.setAttribute("aria-current", String(lang === "en"));
+  ruLink.setAttribute("aria-current", String(lang === "ru"));
+
+  // Switch without a page load, so a visitor who is already looking at the
+  // buttons does not have to wait for a round trip to read them.
+  [["en", enLink], ["ru", ruLink]].forEach(function (pair) {
+    pair[1].onclick = function (event) {
+      event.preventDefault();
+      try { localStorage.setItem("somoni-lang", pair[0]); } catch (e) {}
+      history.replaceState(null, "", "?lang=" + pair[0]);
+      applyLanguage(pair[0]);
+      decorateStores(pair[0]);
+    };
+  });
+}
+
 function detectPlatform() {
   const ua = navigator.userAgent || "";
   if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
   if (/Android/i.test(ua)) return "android";
   return "other";
+}
+
+// Shows whichever store buttons actually have a URL, and states the
+// coming-soon case in the active language.
+function decorateStores(lang) {
+  const iosLink = document.getElementById("ios-link");
+  const androidLink = document.getElementById("android-link");
+  const rustoreLink = document.getElementById("rustore-link");
+  const message = document.getElementById("message");
+
+  if (APP_STORE_URL) {
+    iosLink.href = APP_STORE_URL;
+    iosLink.classList.remove("hidden");
+  }
+  if (GOOGLE_PLAY_URL) {
+    androidLink.href = GOOGLE_PLAY_URL;
+    androidLink.classList.remove("hidden");
+  }
+  if (RUSTORE_URL) {
+    rustoreLink.href = RUSTORE_URL;
+    rustoreLink.classList.remove("hidden");
+  }
+  message.textContent = (!APP_STORE_URL && !GOOGLE_PLAY_URL && !RUSTORE_URL)
+    ? TEXT[lang].soon
+    : TEXT[lang].choose;
 }
 
 (function main() {
@@ -128,26 +308,9 @@ function detectPlatform() {
 
   // Desktop visitor, or the visitor's platform isn't published yet --
   // don't guess, show whichever button(s) are actually available.
-  const iosLink = document.getElementById("ios-link");
-  const androidLink = document.getElementById("android-link");
-  const rustoreLink = document.getElementById("rustore-link");
-  const message = document.getElementById("message");
-
-  if (APP_STORE_URL) {
-    iosLink.href = APP_STORE_URL;
-    iosLink.classList.remove("hidden");
-  }
-  if (GOOGLE_PLAY_URL) {
-    androidLink.href = GOOGLE_PLAY_URL;
-    androidLink.classList.remove("hidden");
-  }
-  if (RUSTORE_URL) {
-    rustoreLink.href = RUSTORE_URL;
-    rustoreLink.classList.remove("hidden");
-  }
-  if (!APP_STORE_URL && !GOOGLE_PLAY_URL && !RUSTORE_URL) {
-    message.textContent = "Somoni is coming soon.";
-  }
+  const lang = resolveLanguage();
+  applyLanguage(lang);
+  decorateStores(lang);
 })();
 </script>
 
