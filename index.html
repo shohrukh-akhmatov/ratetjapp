@@ -72,6 +72,22 @@
   /* Google ships its badge with generous transparent padding baked in, so it
      needs more height to read as the same visual size as Apple's. */
   a.badge.googleplay img { height: 70px; margin-top: -11px; margin-bottom: -11px; }
+  /* RuStore publishes no "Download on" badge, only the logo, so the surface
+     here is ours and the logo sits on it untouched. It stays on white in both
+     themes because the wordmark is black: recolouring or inverting it would
+     be altering their artwork, and a white plate is the standard way to give
+     a logo contrast without changing it. */
+  a.badge.rustore {
+    background: #fff;
+    border-radius: 10px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+    max-width: 250px;
+  }
+  a.badge.rustore img { height: 26px; }
   a.button {
     display: block;
     background: #007aff;
@@ -114,7 +130,7 @@
   <p id="message">Choose your platform below.</p>
   <a id="ios-link" class="badge appstore hidden" href="#"><img id="ios-badge" alt="Download on the App Store"></a>
   <a id="android-link" class="badge googleplay hidden" href="#"><img id="android-badge" alt="Get it on Google Play"></a>
-  <a id="rustore-link" class="button secondary hidden" href="#">Download on RuStore</a>
+  <a id="rustore-link" class="badge rustore hidden" href="#"><img id="rustore-logo" src="assets/rustore-logo.svg" alt="RuStore"></a>
 
   <div class="footer">
     <div class="row">
@@ -222,7 +238,7 @@ function setBadge(anchorID, imageID, source, label) {
   }
   image.alt = label;
   image.onerror = function () {
-    anchor.classList.remove("badge", "appstore", "googleplay");
+    anchor.classList.remove("badge", "appstore", "googleplay", "rustore");
     anchor.classList.add("button");
     anchor.textContent = label;
   };
@@ -236,7 +252,9 @@ function applyLanguage(lang) {
   document.getElementById("heading").textContent = t.heading;
   setBadge("ios-link", "ios-badge", appStoreBadge(lang), t.ios);
   setBadge("android-link", "android-badge", BADGES.googleplay[lang], t.android);
-  document.getElementById("rustore-link").textContent = t.rustore;
+  // Self-hosted, so one file for both languages; only the accessible name,
+  // which is the logo's alt text, changes.
+  setBadge("rustore-link", "rustore-logo", "assets/rustore-logo.svg", t.rustore);
   document.getElementById("privacy-label").textContent = t.privacy;
   document.getElementById("terms-label").textContent = t.terms;
   document.getElementById("support-label").textContent = t.support;
