@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Somoni transfer RUB-TJS</title>
+<style>
+  :root {
+    color-scheme: light dark;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    background: #f2f2f7;
+    color: #1c1c1e;
+    text-align: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #000; color: #f2f2f7; }
+    .card { background: #1c1c1e; }
+    a.button { background: #0a84ff; }
+    .footer { border-top-color: #38383a; }
+    .footer a { color: #0a84ff; }
+    .lang a { color: #0a84ff; }
+    .lang a[aria-current="true"] { color: inherit; }
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 360px;
+    width: 100%;
+    margin: auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+  }
+  .lang {
+    font-size: 13px;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+  .lang a {
+    color: #007aff;
+    text-decoration: none;
+    padding: 2px 4px;
+  }
+  .lang a:hover { text-decoration: underline; }
+  .lang a[aria-current="true"] {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: default;
+  }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p { font-size: 14px; opacity: 0.7; margin: 0 0 24px; }
+  a.badge {
+    display: block;
+    margin: 0 auto 12px;
+    line-height: 0;
+  }
+  a.badge img { display: block; margin: 0 auto; width: auto; }
+  a.badge.appstore img { height: 48px; }
+  a.badge.googleplay img { height: 70px; margin-top: -11px; margin-bottom: -11px; }
+  a.badge.rustore img { height: 48px; }
+  a.button {
+    display: block;
+    background: #007aff;
+    color: #fff;
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  a.button.secondary {
+    background: transparent;
+    border: 1px solid currentColor;
+    color: inherit;
+  }
+  .footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e5ea;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .footer .row { opacity: 0.7; }
+  .footer .row .label { opacity: 0.8; }
+  .footer a { color: #007aff; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+  .footer .support { margin-top: 10px; opacity: 0.7; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="lang">
+    <a id="lang-en" href="?lang=en" hreflang="en">English</a> ·
+    <a id="lang-ru" href="?lang=ru" hreflang="ru">Русский</a>
+  </div>
+
+  <h1 id="heading">Get Somoni</h1>
+  <p id="message">Choose your platform below.</p>
+  <a id="ios-link" class="badge appstore hidden" href="#"><img id="ios-badge" alt="Download on the App Store"></a>
+  <a id="android-link" class="badge googleplay hidden" href="#"><img id="android-badge" alt="Get it on Google Play"></a>
+  <a id="rustore-link" class="badge rustore hidden" href="#"><img id="rustore-logo" alt="Скачайте из RuStore"></a>
+
+  <div class="footer">
+    <div class="row">
+      <span class="label" id="privacy-label">Privacy Policy:</span>
+      <a href="../en/privacy-en.html">EN</a> ·
+      <a href="../ru/privacy-ru.html">RU</a>
+    </div>
+    <div class="row">
+      <span class="label" id="terms-label">Terms of Use:</span>
+      <a href="../en/terms-en.html">EN</a> ·
+      <a href="../ru/terms-ru.html">RU</a>
+    </div>
+    <div class="support">
+      <span id="support-label">Support:</span>
+      <a href="mailto:shohlabs.dev@gmail.com">shohlabs.dev@gmail.com</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const APP_STORE_URL = "https://apps.apple.com/tj/app/somoni-tjs-transfers/id6799623051";
+const GOOGLE_PLAY_URL = "";
+const RUSTORE_URL = "";
+
+const BADGES = {
+  appstore: {
+    en: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/en-us?size=250x83",
+    ru: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/ru-ru?size=250x83"
+  },
+  googleplay: {
+    en: "https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png",
+    ru: "https://play.google.com/intl/ru_ru/badges/static/images/badges/ru_badge_web_generic.png"
+  },
+  rustore: {
+    onLight: "../assets/rustore-badge-on-light.svg",
+    onDark: "../assets/rustore-badge-on-dark.svg"
+  }
+};
+
+function prefersDark() {
+  return !!(window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches);
+}
+
+function appStoreBadge(lang) {
+  return BADGES.appstore[lang].replace(
+    "BADGE_STYLE",
+    prefersDark() ? "white" : "black"
+  );
+}
+
+function rustoreBadge() {
+  return prefersDark() ? BADGES.rustore.onDark : BADGES.rustore.onLight;
+}
+
+const TEXT = {
+  en: {
+    title: "Get Somoni transfer RUB-TJS",
+    heading: "Get Somoni",
+    choose: "Choose your platform below.",
+    soon: "Somoni is coming soon.",
+    ios: "Download for iPhone",
+    android: "Download on Google Play",
+    rustore: "Download on RuStore",
+    privacy: "Privacy Policy:",
+    terms: "Terms of Use:",
+    support: "Support:"
+  },
+  ru: {
+    title: "Сомони — переводы RUB-TJS",
+    heading: "Скачать Сомони",
+    choose: "Выберите свою платформу.",
+    soon: "Сомони скоро выйдет.",
+    ios: "Скачать для iPhone",
+    android: "Скачать в Google Play",
+    rustore: "Скачать в RuStore",
+    privacy: "Политика конфиденциальности:",
+    terms: "Условия использования:",
+    support: "Поддержка:"
+  }
+};
+
+function resolveLanguage() {
+  const requested = new URLSearchParams(window.location.search).get("lang");
+  if (requested && TEXT[requested]) {
+    try { localStorage.setItem("somoni-lang", requested); } catch (e) {}
+    return requested;
+  }
+  let stored = null;
+  try { stored = localStorage.getItem("somoni-lang"); } catch (e) {}
+  if (stored && TEXT[stored]) return stored;
+
+  const browser = (navigator.languages && navigator.languages[0]) ||
+    navigator.language || "en";
+  return /^ru\b/i.test(browser) ? "ru" : "en";
+}
+
+function setBadge(anchorID, imageID, source, label) {
+  const anchor = document.getElementById(anchorID);
+  const image = document.getElementById(imageID);
+  if (!image) {
+    anchor.textContent = label;
+    return;
+  }
+  image.alt = label;
+  image.onerror = function () {
+    anchor.classList.remove("badge", "appstore", "googleplay", "rustore");
+    anchor.classList.add("button");
+    anchor.textContent = label;
+  };
+  image.src = source;
+}
+
+function applyLanguage(lang) {
+  const t = TEXT[lang];
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  document.getElementById("heading").textContent = t.heading;
+  setBadge("ios-link", "ios-badge", appStoreBadge(lang), t.ios);
+  setBadge("android-link", "android-badge", BADGES.googleplay[lang], t.android);
+  setBadge("rustore-link", "rustore-logo", rustoreBadge(), t.rustore);
+  document.getElementById("privacy-label").textContent = t.privacy;
+  document.getElementById("terms-label").textContent = t.terms;
+  document.getElementById("support-label").textContent = t.support;
+
+  const enLink = document.getElementById("lang-en");
+  const ruLink = document.getElementById("lang-ru");
+  enLink.setAttribute("aria-current", String(lang === "en"));
+  ruLink.setAttribute("aria-current", String(lang === "ru"));
+
+  [["en", enLink], ["ru", ruLink]].forEach(function (pair) {
+    pair[1].onclick = function (event) {
+      event.preventDefault();
+      try { localStorage.setItem("somoni-lang", pair[0]); } catch (e) {}
+      history.replaceState(null, "", "?lang=" + pair[0]);
+      applyLanguage(pair[0]);
+      decorateStores(pair[0]);
+    };
+  });
+}
+
+function detectPlatform() {
+  const ua = navigator.userAgent || "";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  return "other";
+}
+
+function decorateStores(lang) {
+  const iosLink = document.getElementById("ios-link");
+  const androidLink = document.getElementById("android-link");
+  const rustoreLink = document.getElementById("rustore-link");
+  const message = document.getElementById("message");
+
+  if (APP_STORE_URL) {
+    iosLink.href = APP_STORE_URL;
+    iosLink.classList.remove("hidden");
+  }
+  if (GOOGLE_PLAY_URL) {
+    androidLink.href = GOOGLE_PLAY_URL;
+    androidLink.classList.remove("hidden");
+  }
+  if (RUSTORE_URL) {
+    rustoreLink.href = RUSTORE_URL;
+    rustoreLink.classList.remove("hidden");
+  }
+  message.textContent = (!APP_STORE_URL && !GOOGLE_PLAY_URL && !RUSTORE_URL)
+    ? TEXT[lang].soon
+    : TEXT[lang].choose;
+}
+
+(function main() {
+  const platform = detectPlatform();
+  const androidStores = [GOOGLE_PLAY_URL, RUSTORE_URL].filter(Boolean);
+
+  if (platform === "ios" && APP_STORE_URL) {
+    window.location.replace(APP_STORE_URL);
+    return;
+  }
+  if (platform === "android" && androidStores.length === 1) {
+    window.location.replace(androidStores[0]);
+    return;
+  }
+
+  const lang = resolveLanguage();
+  applyLanguage(lang);
+  decorateStores(lang);
+})();
+</script>
+
+</body>
+</html>
