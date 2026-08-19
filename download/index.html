@@ -284,14 +284,9 @@ function decorateStores(lang) {
 
 (function main() {
   const platform = detectPlatform();
-  const androidStores = [GOOGLE_PLAY_URL, RUSTORE_URL].filter(Boolean);
 
   if (platform === "ios" && APP_STORE_URL) {
     window.location.replace(APP_STORE_URL);
-    return;
-  }
-  if (platform === "android" && androidStores.length === 1) {
-    window.location.replace(androidStores[0]);
     return;
   }
 
