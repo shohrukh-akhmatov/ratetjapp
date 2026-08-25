@@ -252,11 +252,15 @@ function applyLanguage(lang) {
   });
 }
 
-function detectPlatform() {
-  const ua = navigator.userAgent || "";
-  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
-  if (/Android/i.test(ua)) return "android";
-  return "other";
+function isConfidentIOS() {
+  try {
+    const ua = navigator.userAgent || "";
+    if (/iPhone|iPad|iPod/i.test(ua)) return true;
+    const iPadOS = navigator.platform === "MacIntel" && Number(navigator.maxTouchPoints) > 1;
+    return iPadOS;
+  } catch (e) {
+    return false;
+  }
 }
 
 function decorateStores(lang) {
@@ -283,9 +287,7 @@ function decorateStores(lang) {
 }
 
 (function main() {
-  const platform = detectPlatform();
-
-  if (platform === "ios" && APP_STORE_URL) {
+  if (APP_STORE_URL && isConfidentIOS()) {
     window.location.replace(APP_STORE_URL);
     return;
   }
