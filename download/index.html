@@ -193,19 +193,45 @@ const TEXT = {
   }
 };
 
-function resolveLanguage() {
-  const requested = new URLSearchParams(window.location.search).get("lang");
-  if (requested && TEXT[requested]) {
-    try { localStorage.setItem("somoni-lang", requested); } catch (e) {}
-    return requested;
+function normalizeLanguage(value) {
+  try {
+    if (typeof value !== "string") return null;
+    const code = value.trim().toLowerCase().split(/[-_]/)[0];
+    if (!code) return null;
+    if (["ru", "tg", "uz", "kk", "ky"].includes(code)) return "ru";
+    if (code === "en") return "en";
+    return null;
+  } catch (e) {
+    return null;
   }
-  let stored = null;
-  try { stored = localStorage.getItem("somoni-lang"); } catch (e) {}
-  if (stored && TEXT[stored]) return stored;
+}
 
-  const browser = (navigator.languages && navigator.languages[0]) ||
-    navigator.language || "en";
-  return /^ru\b/i.test(browser) ? "ru" : "en";
+function resolveLanguage() {
+  try {
+    const requested = new URLSearchParams(window.location.search).get("lang");
+    const requestedLanguage = normalizeLanguage(requested);
+    if (requestedLanguage && TEXT[requestedLanguage]) {
+      try { localStorage.setItem("somoni-lang", requestedLanguage); } catch (e) {}
+      return requestedLanguage;
+    }
+
+    let stored = null;
+    try { stored = localStorage.getItem("somoni-lang"); } catch (e) {}
+    const storedLanguage = normalizeLanguage(stored);
+    if (storedLanguage && TEXT[storedLanguage]) return storedLanguage;
+
+    let browser = "en";
+    try {
+      browser = (navigator.languages && navigator.languages[0]) ||
+        navigator.language || "en";
+    } catch (e) {
+      browser = "en";
+    }
+    const browserLanguage = normalizeLanguage(browser);
+    return browserLanguage && TEXT[browserLanguage] ? browserLanguage : "en";
+  } catch (e) {
+    return "en";
+  }
 }
 
 function setBadge(anchorID, imageID, source, label) {
@@ -225,6 +251,7 @@ function setBadge(anchorID, imageID, source, label) {
 }
 
 function applyLanguage(lang) {
+  if (!TEXT[lang]) lang = "en";
   const t = TEXT[lang];
   document.documentElement.lang = lang;
   document.title = t.title;
@@ -264,6 +291,7 @@ function isConfidentIOS() {
 }
 
 function decorateStores(lang) {
+  if (!TEXT[lang]) lang = "en";
   const iosLink = document.getElementById("ios-link");
   const androidLink = document.getElementById("android-link");
   const rustoreLink = document.getElementById("rustore-link");
