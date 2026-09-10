@@ -132,31 +132,33 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
+      min-height: 46px;
       max-width: 100%;
       line-height: 0;
       text-decoration: none;
-      border-radius: 9px;
+      transition: transform .18s ease, opacity .18s ease;
+    }
+
+    .store-badge:hover {
+      transform: scale(1.02);
     }
 
     .store-badge img {
       display: block;
       max-width: 100%;
+      height: 46px;
       width: auto;
     }
 
-    .store-badge.appstore img { height: 48px; }
-    .store-badge.googleplay img {
-      height: 70px;
-      margin-top: -11px;
-      margin-bottom: -11px;
-    }
-    .store-badge.rustore img { height: 48px; }
+    .store-badge.appstore img { height: 46px; }
+    .store-badge.googleplay img { height: 46px; }
+    .store-badge.rustore img { height: 46px; }
 
     .store-fallback {
       display: none;
-      min-width: 220px;
-      padding: 14px 18px;
+      width: 240px;
+      max-width: 100%;
+      padding: 13px 18px;
       border-radius: 10px;
       background: #007aff;
       color: #fff;
@@ -164,6 +166,7 @@
       font-weight: 650;
       line-height: 1.2;
       text-align: center;
+      box-sizing: border-box;
     }
 
     .store-badge.fallback-mode img { display: none; }
@@ -293,9 +296,9 @@
            target="_blank" rel="noopener noreferrer"
            aria-label="Download on the App Store">
           <img id="ios-badge"
-               src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
+               src="assets/app-store-badge-en.svg"
                alt="Download on the App Store">
-          <span id="ios-fallback" class="store-fallback">Download for iPhone</span>
+          <span id="ios-fallback" class="store-fallback">Download on the App Store</span>
         </a>
 
         <a id="android-link" class="store-badge googleplay"
@@ -303,9 +306,9 @@
            target="_blank" rel="noopener noreferrer"
            aria-label="Get it on Google Play">
           <img id="android-badge"
-               src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+               src="assets/google-play-badge.svg"
                alt="Get it on Google Play">
-          <span id="android-fallback" class="store-fallback">Download on Google Play</span>
+          <span id="android-fallback" class="store-fallback">Get it on Google Play</span>
         </a>
 
         <a id="rustore-link" class="store-badge rustore"
@@ -313,7 +316,7 @@
            target="_blank" rel="noopener noreferrer"
            aria-label="Download on RuStore">
           <img id="rustore-badge"
-               src="assets/rustore-badge-on-light.svg"
+               src="assets/rustore-badge.svg"
                alt="Download on RuStore">
           <span id="rustore-fallback" class="store-fallback">Download on RuStore</span>
         </a>
@@ -369,8 +372,8 @@
           lead: "Compare RUB → TJS transfer rates and find the best option.",
           downloadHeading: "Download Somoni",
           downloadHint: "Available for iPhone and Android.",
-          ios: "Download for iPhone",
-          android: "Download on Google Play",
+          ios: "Download on the App Store",
+          android: "Get it on Google Play",
           rustore: "Download on RuStore",
           downloadPage: "Open download page",
           supportHeading: "Support",
@@ -385,9 +388,9 @@
           lead: "Сравнивайте курсы переводов RUB → TJS и выбирайте лучший вариант.",
           downloadHeading: "Скачать Сомони",
           downloadHint: "Доступно для iPhone и Android.",
-          ios: "Скачать для iPhone",
-          android: "Скачать в Google Play",
-          rustore: "Скачать в RuStore",
+          ios: "Загрузите в App Store",
+          android: "Скачайте в Google Play",
+          rustore: "Скачайте в RuStore",
           downloadPage: "Открыть страницу скачивания",
           supportHeading: "Поддержка",
           supportText: "Нужна помощь с Сомони? Напишите Shoh Labs — мы поможем с вопросами и проблемами приложения.",
@@ -401,9 +404,9 @@
           lead: "Қурби интиқоли RUB → TJS-ро муқоиса кунед ва варианти беҳтаринро интихоб намоед.",
           downloadHeading: "Сомониро зеркашӣ кунед",
           downloadHint: "Барои iPhone ва Android дастрас аст.",
-          ios: "Барои iPhone зеркашӣ кунед",
-          android: "Аз Google Play зеркашӣ кунед",
-          rustore: "Аз RuStore зеркашӣ кунед",
+          ios: "Дар App Store зеркашӣ кунед",
+          android: "Дар Google Play дастрас кунед",
+          rustore: "Дар RuStore дастрас кунед",
           downloadPage: "Кушодани саҳифаи зеркашӣ",
           supportHeading: "Дастгирӣ",
           supportText: "Барои Сомонӣ кумак лозим аст? Ба Shoh Labs нависед — мо оид ба саволҳо ё мушкилоти барнома кумак мекунем.",
@@ -414,19 +417,12 @@
 
       const BADGES = {
         appstore: {
-          en: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/en-us?size=250x83",
-          ru: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/ru-ru?size=250x83",
-          tg: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/ru-ru?size=250x83"
+          en: "assets/app-store-badge-en.svg",
+          ru: "assets/app-store-badge-ru.svg",
+          tg: "assets/app-store-badge-en.svg"
         },
-        googleplay: {
-          en: "https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png",
-          ru: "https://play.google.com/intl/ru_ru/badges/static/images/badges/ru_badge_web_generic.png",
-          tg: "https://play.google.com/intl/ru_ru/badges/static/images/badges/ru_badge_web_generic.png"
-        },
-        rustore: {
-          light: "assets/rustore-badge-on-light.svg",
-          dark: "assets/rustore-badge-on-dark.svg"
-        }
+        googleplay: "assets/google-play-badge.svg",
+        rustore: "assets/rustore-badge.svg"
       };
 
       function byId(id) {
@@ -510,8 +506,7 @@
       }
 
       function appStoreBadge(lang) {
-        const template = BADGES.appstore[lang] || BADGES.appstore.en;
-        return template.replace("BADGE_STYLE", prefersDark() ? "white" : "black");
+        return BADGES.appstore[lang] || BADGES.appstore.en;
       }
 
       function applyLanguage(lang) {
@@ -535,14 +530,8 @@
         setText("legal-heading", t.legalHeading);
 
         setBadge("ios-link", "ios-badge", "ios-fallback", appStoreBadge(lang), t.ios);
-        setBadge("android-link", "android-badge", "android-fallback", BADGES.googleplay[lang] || BADGES.googleplay.en, t.android);
-        setBadge(
-          "rustore-link",
-          "rustore-badge",
-          "rustore-fallback",
-          prefersDark() ? BADGES.rustore.dark : BADGES.rustore.light,
-          t.rustore
-        );
+        setBadge("android-link", "android-badge", "android-fallback", BADGES.googleplay, t.android);
+        setBadge("rustore-link", "rustore-badge", "rustore-fallback", BADGES.rustore, t.rustore);
 
         ["tg", "ru", "en"].forEach(function (code) {
           const link = byId("lang-" + code);

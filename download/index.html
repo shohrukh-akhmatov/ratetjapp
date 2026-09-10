@@ -75,24 +75,46 @@
   }
   h1 { font-size: 20px; margin: 0 0 8px; }
   p { font-size: 14px; opacity: 0.7; margin: 0 0 24px; }
-  a.badge {
-    display: block;
-    margin: 0 auto 12px;
-    line-height: 0;
+  .stores {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto 14px;
   }
-  a.badge img { display: block; margin: 0 auto; width: auto; }
-  a.badge.appstore img { height: 48px; }
-  a.badge.googleplay img { height: 70px; margin-top: -11px; margin-bottom: -11px; }
-  a.badge.rustore img { height: 48px; }
+  a.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    text-decoration: none;
+    transition: transform .18s ease, opacity .18s ease;
+  }
+  a.badge:hover { transform: scale(1.02); }
+  a.badge img {
+    display: block;
+    margin: 0 auto;
+    height: 46px;
+    width: auto;
+    max-width: 100%;
+  }
+  a.badge.appstore img { height: 46px; }
+  a.badge.googleplay img { height: 46px; }
+  a.badge.rustore img { height: 46px; }
   a.button {
     display: block;
+    width: 240px;
+    max-width: 100%;
+    margin: 0 auto 12px;
     background: #007aff;
     color: #fff;
     text-decoration: none;
-    padding: 14px;
+    padding: 13px 18px;
     border-radius: 10px;
-    font-weight: 600;
-    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.2;
+    box-sizing: border-box;
   }
   a.button.secondary {
     background: transparent;
@@ -188,9 +210,11 @@
   <img class="icon" src="../app-icon.png" alt="Somoni app icon" width="86" height="86">
   <h1 id="heading">Get Somoni</h1>
   <p id="message">Choose your platform below.</p>
-  <a id="ios-link" class="badge appstore hidden" href="#"><img id="ios-badge" alt="Download on the App Store"></a>
-  <a id="android-link" class="badge googleplay hidden" href="#"><img id="android-badge" alt="Get it on Google Play"></a>
-  <a id="rustore-link" class="badge rustore hidden" href="#"><img id="rustore-logo" alt="Скачайте из RuStore"></a>
+  <div class="stores">
+    <a id="ios-link" class="badge appstore hidden" href="#" aria-label="Download on the App Store"><img id="ios-badge" src="../assets/app-store-badge-en.svg" alt="Download on the App Store"></a>
+    <a id="android-link" class="badge googleplay hidden" href="#" aria-label="Get it on Google Play"><img id="android-badge" src="../assets/google-play-badge.svg" alt="Get it on Google Play"></a>
+    <a id="rustore-link" class="badge rustore hidden" href="#" aria-label="Download on RuStore"><img id="rustore-logo" src="../assets/rustore-badge.svg" alt="Download on RuStore"></a>
+  </div>
 
   <div class="footer">
     <div class="row">
@@ -228,33 +252,19 @@ const RUSTORE_URL = "https://www.rustore.ru/catalog/app/dev.shohlabs.somoni";
 
 const BADGES = {
   appstore: {
-    en: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/en-us?size=250x83",
-    ru: "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/BADGE_STYLE/ru-ru?size=250x83"
+    en: "../assets/app-store-badge-en.svg",
+    ru: "../assets/app-store-badge-ru.svg"
   },
-  googleplay: {
-    en: "https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png",
-    ru: "https://play.google.com/intl/ru_ru/badges/static/images/badges/ru_badge_web_generic.png"
-  },
-  rustore: {
-    onLight: "../assets/rustore-badge-on-light.svg",
-    onDark: "../assets/rustore-badge-on-dark.svg"
-  }
+  googleplay: "../assets/google-play-badge.svg",
+  rustore: "../assets/rustore-badge.svg"
 };
 
-function prefersDark() {
-  return !!(window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches);
-}
-
 function appStoreBadge(lang) {
-  return BADGES.appstore[lang].replace(
-    "BADGE_STYLE",
-    prefersDark() ? "white" : "black"
-  );
+  return BADGES.appstore[lang] || BADGES.appstore.en;
 }
 
 function rustoreBadge() {
-  return prefersDark() ? BADGES.rustore.onDark : BADGES.rustore.onLight;
+  return BADGES.rustore;
 }
 
 const TEXT = {
@@ -263,8 +273,8 @@ const TEXT = {
     heading: "Get Somoni",
     choose: "Choose your platform below.",
     soon: "Somoni is coming soon.",
-    ios: "Download for iPhone",
-    android: "Download on Google Play",
+    ios: "Download on the App Store",
+    android: "Get it on Google Play",
     rustore: "Download on RuStore",
     privacy: "Privacy Policy:",
     terms: "Terms of Use:",
@@ -276,9 +286,9 @@ const TEXT = {
     heading: "Скачать Сомони",
     choose: "Выберите свою платформу.",
     soon: "Сомони скоро выйдет.",
-    ios: "Скачать для iPhone",
-    android: "Скачать в Google Play",
-    rustore: "Скачать в RuStore",
+    ios: "Загрузите в App Store",
+    android: "Скачайте в Google Play",
+    rustore: "Скачайте в RuStore",
     privacy: "Политика конфиденциальности:",
     terms: "Условия использования:",
     support: "Поддержка:",
@@ -350,7 +360,7 @@ function applyLanguage(lang) {
   document.title = t.title;
   document.getElementById("heading").textContent = t.heading;
   setBadge("ios-link", "ios-badge", appStoreBadge(lang), t.ios);
-  setBadge("android-link", "android-badge", BADGES.googleplay[lang], t.android);
+  setBadge("android-link", "android-badge", BADGES.googleplay, t.android);
   setBadge("rustore-link", "rustore-logo", rustoreBadge(), t.rustore);
   document.getElementById("privacy-label").textContent = t.privacy;
   document.getElementById("terms-label").textContent = t.terms;
