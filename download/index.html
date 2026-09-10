@@ -275,7 +275,7 @@ function normalizeLanguage(value) {
     if (typeof value !== "string") return null;
     const code = value.trim().toLowerCase().split(/[-_]/)[0];
     if (!code) return null;
-    if (["ru", "tg", "uz", "kk", "ky"].includes(code)) return "ru";
+    if (code === "ru") return "ru";
     if (code === "en") return "en";
     return null;
   } catch (e) {
