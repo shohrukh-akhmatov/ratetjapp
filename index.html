@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Download Somoni and get support for RUB to TJS transfers.">
   <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="Somoni — TJS Transfers">
+  <meta property="og:description" content="Download Somoni and get support for RUB to TJS transfers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shohrukh-akhmatov.github.io/ratetjapp/">
+  <meta property="og:image" content="https://shohrukh-akhmatov.github.io/ratetjapp/app-icon.png">
+  <link rel="icon" type="image/png" href="app-icon.png">
+  <link rel="apple-touch-icon" href="app-icon.png">
   <title>Somoni — TJS Transfers</title>
   <style>
     :root { color-scheme: light dark; }
@@ -55,16 +62,44 @@
       cursor: default;
     }
 
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .app-icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.14);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .app-header-text {
+      min-width: 0;
+    }
+
     h1 {
-      margin: 0 0 10px;
-      font-size: 28px;
+      margin: 0 0 8px;
+      font-size: 26px;
       line-height: 1.15;
     }
 
     .lead {
       margin: 0;
-      line-height: 1.55;
+      line-height: 1.5;
       opacity: .78;
+    }
+
+    @media (max-width: 480px) {
+      .app-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 14px;
+      }
     }
 
     .download {
@@ -240,8 +275,13 @@
       <a id="lang-en" href="?lang=en" hreflang="en">English</a>
     </nav>
 
-    <h1 id="heading">Somoni — TJS Transfers</h1>
-    <p id="lead" class="lead">Compare RUB → TJS transfer rates and find the best option.</p>
+    <div class="app-header">
+      <img class="app-icon" src="app-icon.png" alt="Somoni app icon" width="76" height="76">
+      <div class="app-header-text">
+        <h1 id="heading">Somoni — TJS Transfers</h1>
+        <p id="lead" class="lead">Compare RUB → TJS transfer rates and find the best option.</p>
+      </div>
+    </div>
 
     <section class="download" aria-labelledby="download-heading">
       <h2 id="download-heading">Download Somoni</h2>
