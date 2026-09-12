@@ -248,7 +248,7 @@
 <script>
 const APP_STORE_URL = "https://apps.apple.com/tj/app/somoni-tjs-transfers/id6799623051";
 const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=dev.shohlabs.somoni";
-const RUSTORE_URL = "";
+const RUSTORE_URL = "https://www.rustore.ru/catalog/app/dev.shohlabs.somoni";
 
 const BADGES = {
   appstore: {
@@ -411,7 +411,7 @@ function decorateStores(lang) {
   }
   if (RUSTORE_URL) {
     rustoreLink.href = RUSTORE_URL;
-    rustoreLink.classList.remove("hidden");
+    // rustoreLink.classList.remove("hidden"); // Temporarily hide RuStore
   }
   message.textContent = (!APP_STORE_URL && !GOOGLE_PLAY_URL && !RUSTORE_URL)
     ? TEXT[lang].soon
